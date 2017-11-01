@@ -88,6 +88,20 @@ static const char defaultEntry[] = "*";
 static const char defaultSubEntry[] = "*";
 static const char defaultFilter[] = "";
 
+static printString(FILE* file, const char* item, long itemLength){
+  char msgcopy[1000];
+  size_t copylen = itemLength > (sizeof(msgcopy)-1) 
+    ? (sizeof(msgcopy)-1)
+    : (size_t) (itemLength);
+  memcpy(msgcopy, item, copylen);
+  msgcopy[copylen] = 0;
+  fprintf(stderr, "%s\n", msgcopy);
+}
+
+static printItem(FILE* file, const P_ITEM_LIST item){
+  printString(file, item->data, item->datalen);
+}
+
 int main(int argc, char**argv){
   opterr = 0; /* disable auto error reporting */
   char opt = 0;
@@ -208,15 +222,11 @@ int main(int argc, char**argv){
 
     char msgcopy[1000];
     while (msgbuff){
-      size_t copylen = msgbuff->datalen > (sizeof(msgcopy)-1) 
-                       ? (sizeof(msgcopy)-1)
-                       : (size_t) (msgbuff->datalen);
-      memcpy(msgcopy, msgbuff->data, copylen);
-      msgcopy[copylen] = 0;
-      fprintf(stderr, "%s\n", msgcopy);
+      printItem(stderr, msgbuff);
       msgbuff = msgbuff->next;
     }
   }
+
 
   (*gimapi) ("FREE    ", 0, 0, "ENU", &rc, &cc, &msgbuff);
 
