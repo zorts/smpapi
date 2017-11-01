@@ -7,3 +7,4 @@
 *.dbg
 smp
 .d/
+CEEDUMP*

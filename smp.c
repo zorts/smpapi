@@ -82,6 +82,12 @@ static void usage(int argc, char** argv){
           argv[0]);
 }
 
+static const char defaultCSI[] = "SMPE.ZOSV201.GLOBAL.CSI";
+static const char defaultZone[] = "*";
+static const char defaultEntry[] = "*";
+static const char defaultSubEntry[] = "*";
+static const char defaultFilter[] = "";
+
 int main(int argc, char**argv){
   opterr = 0; /* disable auto error reporting */
   char opt = 0;
@@ -90,12 +96,37 @@ int main(int argc, char**argv){
   int myoptind = 1;
   char* myoptarg = 0;
   bool verbose = false;
+  char* csi = (char*) defaultCSI;
+  char* zone = (char*) defaultZone;
+  char* entry = (char*) defaultEntry;
+  char* subentry = (char*) defaultSubEntry;
+  char* filter = (char*) defaultFilter;
 
-  while (((char) -1) != (opt = (char) getopt(argc, argv, "v"))){
+  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:v"))){
     myoptind = optind;
     myoptarg = optarg;
 
     switch(opt){
+
+    case 'c':
+      csi = myoptarg;
+      break;
+
+    case 'z':
+      zone = myoptarg;
+      break;
+
+    case 'e':
+      entry = myoptarg;
+      break;
+
+    case 's':
+      subentry = myoptarg;
+      break;
+
+    case 'f':
+      filter = myoptarg;
+      break;
 
     case 'v':
       verbose = true;
@@ -125,28 +156,46 @@ int main(int argc, char**argv){
   }
 
   ITEM_LIST* msgbuff = 0;
-
-  P_API_VERSION verout;
-
   int rc = 0, cc = 0;
   
-  (*gimapi) ("VERSION ", 0, &verout, "ENU", &rc, &cc, &msgbuff);
-
   if (verbose){
+    P_API_VERSION verout;
+    (*gimapi) ("VERSION ", 0, &verout, "ENU", &rc, &cc, &msgbuff);
     const char* version_string = (const char*)verout;
     fprintf(stderr,
             "API version string: %s, rc = %d, cc = %d\n",
             (rc == 0 ? version_string : "UNKNOWN"),
             rc, cc);
-  }
-  (*gimapi) ("FREE    ", 0, 0, "ENU", &rc, &cc, &msgbuff);
-  if (verbose){
-    fprintf(stderr,
+    (*gimapi) ("FREE    ", 0, 0, "ENU", &rc, &cc, &msgbuff);
+      fprintf(stderr,
             "FREE returned rc = %d, cc = %d\n",
             rc, cc);
   }
 
-  /* (*gimapi) (apicmd,&parmptr,&outptr,language,&rc,&cc,&msgbuff); */
+  QUERY_PARMS parms;
+  P_QUERY_PARMS parmptr = &parms;
+  void* outptr = 0;
+  parms.csi = csi;
+  parms.csilen = (long) strlen(csi);
+  parms.zone = zone;
+  parms.zonelen = (long) strlen(zone);
+  parms.entrytype = entry;
+  parms.entrylen = (long) strlen(entry);
+  parms.subentrytype = subentry;
+  parms.subentrylen = (long) strlen(subentry);
+  parms.filter = filter;
+  parms.filterlen = (long) strlen(filter);
+
+
+  (*gimapi) ("QUERY   ", &parmptr, &outptr, "ENU", &rc, &cc, &msgbuff);
+  if (verbose){
+    fprintf(stderr,
+            "QUERY returned rc = %d, cc = %d\n",
+            rc, cc);
+  }
+
+  (*gimapi) ("FREE    ", 0, 0, "ENU", &rc, &cc, &msgbuff);
+
   release((CFUNC*) gimapi);
   return 0;
 }
