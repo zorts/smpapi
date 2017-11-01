@@ -5,6 +5,8 @@
 .\#*
 *.so
 *.dbg
-smp
 .d/
 CEEDUMP*
+smp
+sample
+

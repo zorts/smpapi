@@ -139,12 +139,13 @@ endif
 # processed to have dependencies auto-generated
 SRCS = \
  smp.c \
+ sample.c \
  ${EMPTY}
 
 # Targets start here
 
 ifeq "${OSTYPE}" "zOS"
-PROGRAMS := smp
+PROGRAMS := smp sample
 endif
 
 ifeq "${OSTYPE}" "zLinux"
@@ -163,6 +164,11 @@ smp: smp.o \
  ${EMPTY}
 	${LINK} -o $@ $^
 	# cp -X $@ //x.load
+
+sample: sample.o \
+ ${MVSOBJS} \
+ ${EMPTY}
+	${LINK} -o $@ $^
 
 clean:
 	rm -f ${PROGRAMS} *.o *~ *.dbg *.lst *.ad $(DEPDIR)/*
