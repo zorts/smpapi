@@ -1,0 +1,21 @@
+# This sets the default encoding for files that do NOT match any of the 
+# following patterns. Many z/OS users will want the bulk of their files
+# as EBCDIC.
+
+* git-encoding=iso8859-1 working-tree-encoding=ibm-1047
+
+# Some of the git configuration files MUST be ASCII.
+
+.gitattributes   git-encoding=iso8859-1 working-tree-encoding=iso8859-1
+.gitignore       git-encoding=iso8859-1 working-tree-encoding=iso8859-1
+
+# Some files are not text; leave them untouched, and tagged as binary files.
+
+*.jpg   git-encoding=BINARY    working-tree-encoding=BINARY
+*.png   git-encoding=BINARY    working-tree-encoding=BINARY
+*.gif   git-encoding=BINARY    working-tree-encoding=BINARY
+*.JPG   git-encoding=BINARY    working-tree-encoding=BINARY
+*.PNG   git-encoding=BINARY    working-tree-encoding=BINARY
+*.GIF   git-encoding=BINARY    working-tree-encoding=BINARY
+*.zip   git-encoding=BINARY    working-tree-encoding=BINARY
+
