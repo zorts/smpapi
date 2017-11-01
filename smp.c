@@ -96,13 +96,14 @@ int main(int argc, char**argv){
   int myoptind = 1;
   char* myoptarg = 0;
   bool verbose = false;
+  bool messages = false;
   char* csi = (char*) defaultCSI;
   char* zone = (char*) defaultZone;
   char* entry = (char*) defaultEntry;
   char* subentry = (char*) defaultSubEntry;
   char* filter = (char*) defaultFilter;
 
-  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:v"))){
+  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:vm"))){
     myoptind = optind;
     myoptarg = optarg;
 
@@ -130,6 +131,11 @@ int main(int argc, char**argv){
 
     case 'v':
       verbose = true;
+      messages = true;
+      break;
+
+    case 'm':
+      messages = true;
       break;
 
     default:
@@ -185,13 +191,31 @@ int main(int argc, char**argv){
   parms.subentrylen = (long) strlen(subentry);
   parms.filter = filter;
   parms.filterlen = (long) strlen(filter);
-
+  msgbuff = 0;
 
   (*gimapi) ("QUERY   ", &parmptr, &outptr, "ENU", &rc, &cc, &msgbuff);
   if (verbose){
     fprintf(stderr,
             "QUERY returned rc = %d, cc = %d\n",
             rc, cc);
+  }
+  if ((msgbuff != 0) && ((rc > 4) || messages)){
+    if (!verbose){ /* don't do it twice */
+      fprintf(stderr,
+              "QUERY returned rc = %d, cc = %d\n",
+              rc, cc);
+    }
+
+    char msgcopy[1000];
+    while (msgbuff){
+      size_t copylen = msgbuff->datalen > (sizeof(msgcopy)-1) 
+                       ? (sizeof(msgcopy)-1)
+                       : (size_t) (msgbuff->datalen);
+      memcpy(msgcopy, msgbuff->data, copylen);
+      msgcopy[copylen] = 0;
+      fprintf(stderr, "%s\n", msgcopy);
+      msgbuff = msgbuff->next;
+    }
   }
 
   (*gimapi) ("FREE    ", 0, 0, "ENU", &rc, &cc, &msgbuff);
