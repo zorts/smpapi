@@ -32,7 +32,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 
 CPPFLAGS = \
  -I. \
- -m64 \
+ -m32 \
  -Wall \
  -D__STDC_FORMAT_MACROS \
  -D_XOPEN_SOURCE=600 \
@@ -50,7 +50,7 @@ CXXFLAGS = \
  ${OPT} ${DEBUG} \
  ${EMPTY}
 
-LINK = g++ -m64 -lpthread ${DEBUG}
+LINK = g++ -m32 -lpthread ${DEBUG}
 endif
 
 ifeq "${OSTYPE}" "zOS"
@@ -74,7 +74,7 @@ CPPFLAGS = \
 ASCII := -qebcdic
 
 CC = xlc \
- -q64 \
+ -q32 \
  ${ASCII} \
  -qasm \
  -qlanglvl=extc99 \
@@ -92,7 +92,7 @@ CFLAGS = \
  ${EMPTY}
 
 CXX := xlC \
- -q64 \
+ -q32 \
  ${ASCII} \
  -qasm \
  -qasmlib="//'SYS1.MACLIB'" \
@@ -127,7 +127,7 @@ ASDEPEND := \
 %.o : %.s ${ASDEPEND}
 	${AS} ${ASLIST}=$(basename $<).lst ${ASOPTS}  -o $@ $<
 
-LINK = xlC ${DEBUG} ${ASCII} -q64
+LINK = xlC ${DEBUG} ${ASCII} -q32
 endif
 
 ifeq "${OSTYPE}" "zOS"
