@@ -1,1 +1,2 @@
-This is a template repo containing the customary z/OS files.
+Drive GIMAPI (the SMP query API) from the USS command line.
+
