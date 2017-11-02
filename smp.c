@@ -59,6 +59,20 @@ void usage(int argc, char**argv){
           argv[0]);
 }
 
+static
+char* copyAndTrim(char* cursor, size_t maxLength, const char* source){
+  size_t i;
+  for (i = 0; i < maxLength; ++i){
+    if (( *source == '\0') || (*source == ' ')){
+      break;
+    }
+    *cursor++ = *source++;
+  }
+  *cursor = 0;
+  return cursor;
+}
+
+
 int main(int argc, char**argv){
   opterr = 0; /* disable auto error reporting */
   char opt = 0;
@@ -156,7 +170,7 @@ int main(int argc, char**argv){
 
   QUERY_PARMS parms;
   P_QUERY_PARMS parmptr = &parms;
-  void* outptr = 0;
+  P_ENTRY_LIST entrylist = 0;
   parms.csi = csi;
   parms.csilen = (long) strlen(csi);
   parms.zone = zone;
@@ -169,7 +183,7 @@ int main(int argc, char**argv){
   parms.filterlen = (long) strlen(filter);
   msgbuff = 0;
 
-  (*gimapi) ("QUERY   ", &parmptr, &outptr, "ENU", &rc, &cc, &msgbuff);
+  (*gimapi) ("QUERY   ", &parmptr, &entrylist, "ENU", &rc, &cc, &msgbuff);
   if (verbose){
     fprintf(stderr,
             "QUERY returned rc = %d, cc = %d\n",
@@ -189,6 +203,23 @@ int main(int argc, char**argv){
     }
   }
 
+  char databuf[1000];
+  for (; entrylist !=0 ; entrylist=entrylist->next){
+    memset(databuf, 0, sizeof(databuf));
+    char* cursor = copyAndTrim(databuf, sizeof(entrylist->type), entrylist->type);
+    *cursor++ = '|';
+    char* entryCursor = cursor;
+    P_CSI_ENTRY curentry;
+    for (curentry=entrylist->entries; curentry!=0; curentry=curentry->next){
+      char* cursor = copyAndTrim(entryCursor, sizeof(curentry->zonename), curentry->zonename);
+      *cursor++ = '|';
+      cursor = copyAndTrim(cursor, sizeof(curentry->entryname), curentry->entryname);
+      *cursor++ = '|';
+
+      *cursor = '\0';
+      printf("%s\n", databuf);
+    }
+  }
 
   (*gimapi) ("FREE    ", 0, 0, "ENU", &rc, &cc, &msgbuff);
 
