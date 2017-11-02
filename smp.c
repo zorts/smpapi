@@ -11,20 +11,14 @@
 #include <_Nascii.h> /* for __isASCII() */
 #include "smpapi.h"
 
-static void usage(int argc, char** argv){
-  fprintf(stderr, 
-          "usage: %s\n"
-          ,
-          argv[0]);
-}
-
 static const char defaultCSI[] = "SMPE.ZOSV201.GLOBAL.CSI";
 static const char defaultZone[] = "*";
 static const char defaultEntry[] = "*";
 static const char defaultSubEntry[] = "*";
 static const char defaultFilter[] = "";
 
-static printString(FILE* file, const char* item, long itemLength){
+static 
+void printString(FILE* file, const char* item, long itemLength){
   char msgcopy[1000];
   size_t copylen = itemLength > (sizeof(msgcopy)-1) 
     ? (sizeof(msgcopy)-1)
@@ -34,8 +28,35 @@ static printString(FILE* file, const char* item, long itemLength){
   fprintf(stderr, "%s\n", msgcopy);
 }
 
-static printItem(FILE* file, const P_ITEM_LIST item){
+static
+void  printItem(FILE* file, const P_ITEM_LIST item){
   printString(file, item->data, item->datalen);
+}
+
+static
+void usage(int argc, char**argv){
+  fprintf(stderr,
+          "usage: %s \n"
+          "  -h    get usage help \n"
+          "  -v    verbose \n"
+          "  -m    display messages, even if return code is 0 or 4 \n"
+          "  -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK \n"
+          "  -z <zone(s)>  Zone selection: \n"
+          "     global - Use the global zone \n"
+          "     alltzones - Use all target zones \n"
+          "     alldzones - Use all DLIB zones \n"
+          "     * (default) - Use all zones \n"
+          "     zone[,zone] - Use specific names zone(s) \n"
+          "  -e <entry type(s)>  Type(s) of entries to be displayed, such as: \n"
+          "     assem, dddef, dlib, element, lmod, mac, sysmod, etc. \n"
+          "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/entry.htm \n"
+          "  -s <subtype(s)>  Subtypes() of entries to be displayed \n"
+          "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/subent.htm \n"
+          "  -f <filter>  Filter expression \n"
+          "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/filter.htm \n"
+          " \n"
+          , 
+          argv[0]);
 }
 
 int main(int argc, char**argv){
@@ -53,7 +74,7 @@ int main(int argc, char**argv){
   char* subentry = (char*) defaultSubEntry;
   char* filter = (char*) defaultFilter;
 
-  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:vm"))){
+  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:vmh"))){
     myoptind = optind;
     myoptarg = optarg;
 
@@ -86,6 +107,11 @@ int main(int argc, char**argv){
 
     case 'm':
       messages = true;
+      break;
+
+    case 'h':
+      usage(argc, argv);
+      return 1;
       break;
 
     default:
