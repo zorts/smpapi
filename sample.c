@@ -42,9 +42,9 @@ void main(int argc, char *argv[])
   /* length of those strings. */
   /*****************************************************/
   strcpy(csi,"SMPE.ZOSV201.GLOBAL.CSI");
-  strcpy(zone,"ALLTZONES");
+  strcpy(zone,"TARGA");
   strcpy(ent,"SYSMOD");
-  strcpy(subent,"MOD,INSTALLDATE");
+  strcpy(subent,"*");
 #if 0
   strcpy(filter,"(SMODTYPE=PTF | SMODTYPE=USERMOD)");
   strcat(filter," & FMID=HMP1E00 & APPLY=YES");
