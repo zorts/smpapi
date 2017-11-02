@@ -207,17 +207,53 @@ int main(int argc, char**argv){
   for (; entrylist !=0 ; entrylist=entrylist->next){
     memset(databuf, 0, sizeof(databuf));
     char* cursor = copyAndTrim(databuf, sizeof(entrylist->type), entrylist->type);
+    P_CSI_ENTRY curentry = entrylist->entries;
+    if (curentry == 0){
+      *cursor = '\0';
+      printf("%s\n", databuf);
+      continue;
+    }
+
     *cursor++ = '|';
     char* entryCursor = cursor;
-    P_CSI_ENTRY curentry;
-    for (curentry=entrylist->entries; curentry!=0; curentry=curentry->next){
+    for (; curentry!=0; curentry=curentry->next){
       char* cursor = copyAndTrim(entryCursor, sizeof(curentry->zonename), curentry->zonename);
       *cursor++ = '|';
       cursor = copyAndTrim(cursor, sizeof(curentry->entryname), curentry->entryname);
-      *cursor++ = '|';
+      P_SUBENTRY cursubent = curentry->subentries;
+      if (cursubent == 0){
+        *cursor = '\0';
+        printf("%s\n", databuf);
+        continue;
+      }
 
-      *cursor = '\0';
-      printf("%s\n", databuf);
+      *cursor++ = '|';
+      char* subEntryCursor = cursor;
+      for (; cursubent!=0; cursubent=cursubent->next){
+        char* cursor = copyAndTrim(subEntryCursor, sizeof(cursubent->type), cursubent->type);
+        if (cursubent->subentrydata == 0){
+          *cursor = '\0';
+          printf("%s\n", databuf);
+          continue;
+        }
+
+        *cursor++ = '|';
+        char* thisSubEntryCursor = cursor;
+        if (0 == memcmp(cursubent->type, "VER", 4)){
+          /* It's a VER subentry, which has its own list of subitems */
+          *cursor = '\0';
+          printf("%s\n", databuf);
+        } else{
+          /* It's just a list of items */
+          P_ITEM_LIST curitem = (P_ITEM_LIST) (cursubent->subentrydata);
+          for (; curitem!= 0; curitem = curitem->next){
+            char* cursor = copyAndTrim(thisSubEntryCursor, (size_t)(curitem->datalen), curitem->data);
+            *cursor = '\0';
+            printf("%s\n", databuf);
+          }
+        }
+      }
+
     }
   }
 
