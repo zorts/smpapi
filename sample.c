@@ -12,9 +12,7 @@
 #define LEN_VERNUM 3
 #define LEN_TXTVER 3
 #define LEN_MSG 256
-typedef void APIPGM();
 
-#pragma linkage(APIPGM,OS)
 static void errprint(char *, long, long, ITEM_LIST *);
 static void valprint(ITEM_LIST *);
 static void resprint(ENTRY_LIST *);
