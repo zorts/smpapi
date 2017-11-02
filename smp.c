@@ -62,18 +62,33 @@ void usage(int argc, char**argv){
 static
 char* copyAndTrim(char* cursor, size_t maxLength, const char* source){
   size_t i;
+  char* start = cursor;
   for (i = 0; i < maxLength; ++i){
-    if (( *source == '\0') || (*source == ' ')){
+    if ( *source == '\0'){
       break;
     }
     *cursor++ = *source++;
   }
   *cursor = 0;
+
+  /* Now work backwards and trim off any blanks. */
+  while (--cursor > start){
+    if (*cursor != ' '){
+      return cursor+1;
+    } else{
+      *cursor='\0';
+    }
+  }
+
   return cursor;
 }
 
 
 int main(int argc, char**argv){
+  if (argc == 1){
+    usage(argc, argv);
+    return 1;
+  }
   opterr = 0; /* disable auto error reporting */
   char opt = 0;
   /* These copies are needed because optind and optarg aren't
@@ -220,8 +235,8 @@ int main(int argc, char**argv){
       char* cursor = copyAndTrim(entryCursor, sizeof(curentry->zonename), curentry->zonename);
       *cursor++ = '|';
       cursor = copyAndTrim(cursor, sizeof(curentry->entryname), curentry->entryname);
-      P_SUBENTRY cursubent = curentry->subentries;
-      if (cursubent == 0){
+      P_SUBENTRY topsubentry = curentry->subentries;
+      if (topsubentry == 0){
         *cursor = '\0';
         printf("%s\n", databuf);
         continue;
@@ -229,31 +244,67 @@ int main(int argc, char**argv){
 
       *cursor++ = '|';
       char* subEntryCursor = cursor;
-      for (; cursubent!=0; cursubent=cursubent->next){
-        char* cursor = copyAndTrim(subEntryCursor, sizeof(cursubent->type), cursubent->type);
-        if (cursubent->subentrydata == 0){
+      for (; topsubentry!=0; topsubentry=topsubentry->next){
+        char* cursor = copyAndTrim(subEntryCursor, sizeof(topsubentry->type), topsubentry->type);
+        if (topsubentry->subentrydata == 0){
           *cursor = '\0';
           printf("%s\n", databuf);
           continue;
         }
-
+        /* It's got subentries, either VER or normal */
         *cursor++ = '|';
-        char* thisSubEntryCursor = cursor;
-        if (0 == memcmp(cursubent->type, "VER", 4)){
+        char* topSubEntryCursor = cursor;
+
+        if (0 == memcmp(topsubentry->type, "VER", 3)){
           /* It's a VER subentry, which has its own list of subitems */
-          *cursor = '\0';
-          printf("%s\n", databuf);
+          P_VER verentry = (P_VER)  (topsubentry->subentrydata);
+          if (verentry->verdata == 0){
+            /* Seem unlikely; why would this even be here? */
+            *cursor = '\0';
+            printf("%s\n", databuf);
+            continue;
+          }
+          for (; verentry!=0; verentry=verentry->next){
+            P_SUBENTRY versubentry = verentry->verdata;
+            char* cursor = copyAndTrim(topSubEntryCursor, sizeof(verentry->vernum), verentry->vernum);
+            if (versubentry == 0){
+              *cursor = '\0';
+              printf("%s\n", databuf);
+              continue;
+            }
+
+            *cursor++ = '|';
+            char* verCursor = cursor;
+            
+            for (; versubentry!=0; versubentry=versubentry->next){
+              char* cursor = copyAndTrim(verCursor, sizeof(versubentry->type), versubentry->type);
+              if (versubentry->subentrydata == 0){
+                *cursor = '\0';
+                printf("%s\n", databuf);
+                continue;
+              }
+
+              *cursor++ = '|';
+              char* verSubEntryCursor = cursor;
+
+              P_ITEM_LIST curitem = (P_ITEM_LIST) (versubentry->subentrydata);
+              for (; curitem!= 0; curitem = curitem->next){
+                char* cursor = copyAndTrim(verSubEntryCursor, (size_t)(curitem->datalen), curitem->data);
+                *cursor = '\0';
+                printf("%s\n", databuf);
+              }
+            }
+          }
         } else{
           /* It's just a list of items */
-          P_ITEM_LIST curitem = (P_ITEM_LIST) (cursubent->subentrydata);
+          P_ITEM_LIST curitem = (P_ITEM_LIST) (topsubentry->subentrydata);
           for (; curitem!= 0; curitem = curitem->next){
-            char* cursor = copyAndTrim(thisSubEntryCursor, (size_t)(curitem->datalen), curitem->data);
+            char* cursor = copyAndTrim(topSubEntryCursor, (size_t)(curitem->datalen), curitem->data);
             *cursor = '\0';
             printf("%s\n", databuf);
           }
         }
       }
-
     }
   }
 
