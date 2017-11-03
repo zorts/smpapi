@@ -1,4 +1,4 @@
-Drive GIMAPI (the SMP query API) from the USS command line.
+Drive GIMAPI (the SMP query API) from the USS command line. The output is vertical-bar delimited, intended for consumption by scripts.
 
 Some sample commands:
 
