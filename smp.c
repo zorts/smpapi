@@ -41,24 +41,34 @@ void usage(int argc, char**argv){
           "  -v    verbose \n"
           "  -m    display messages, even if return code is 0 or 4 \n"
           "  -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK \n"
+          "     default: \"%s\" \n"
           "  -z <zone(s)>  Zone selection: \n"
           "     global - Use the global zone \n"
           "     alltzones - Use all target zones \n"
           "     alldzones - Use all DLIB zones \n"
-          "     * (default) - Use all zones \n"
+          "     * - Use all zones \n"
           "     zone[,zone] - Use specific names zone(s) \n"
+          "     default: \"%s\" \n"
           "  -e <entry type(s)>  Type(s) of entries to be displayed, such as: \n"
           "     assem, dddef, dlib, element, lmod, mac, sysmod, etc. \n"
-          "     * (default) - all entry types \n"
+          "     * - all entry types \n"
+          "     default: \"%s\" \n"
           "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/entry.htm \n"
           "  -s <subtype(s)>  Subtypes() of entries to be displayed \n"
-          "     * (default) - all subtypes types \n"
+          "     * - all subtypes types \n"
+          "     default: \"%s\" \n"
           "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/subent.htm \n"
           "  -f <filter>  Filter expression \n"
           "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/filter.htm \n"
+          "     default: \"%s\" \n"
           " \n"
           , 
-          argv[0]);
+          argv[0],
+          defaultCSI,
+          defaultZone,
+          defaultEntry,
+          defaultSubEntry,
+          defaultFilter);
 }
 
 static
