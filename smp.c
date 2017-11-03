@@ -40,6 +40,7 @@ void usage(int argc, char**argv){
           "  -h    get usage help \n"
           "  -v    verbose \n"
           "  -m    display messages, even if return code is 0 or 4 \n"
+          "  -H    produce a header line in the output \n"
           "  -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK \n"
           "     default: \"%s\" \n"
           "  -z <zone(s)>  Zone selection: \n"
@@ -109,13 +110,14 @@ int main(int argc, char**argv){
   char* myoptarg = 0;
   bool verbose = false;
   bool messages = false;
+  bool header = false;
   char* csi = (char*) defaultCSI;
   char* zone = (char*) defaultZone;
   char* entry = (char*) defaultEntry;
   char* subentry = (char*) defaultSubEntry;
   char* filter = (char*) defaultFilter;
 
-  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:vmh"))){
+  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:vmhH"))){
     myoptind = optind;
     myoptarg = optarg;
 
@@ -148,6 +150,10 @@ int main(int argc, char**argv){
 
     case 'm':
       messages = true;
+      break;
+
+    case 'H':
+      header = true;
       break;
 
     case 'h':
@@ -231,6 +237,9 @@ int main(int argc, char**argv){
   }
 
   char databuf[1000];
+  if (header){
+    printf("ENTRY TYPE|ZONE|ENTRY NAME|SUBTYPE|SUBTYPE VALUE|VER SUBTYPE|VER SUBTYPE VALUE\n");
+  }
   for (; entrylist !=0 ; entrylist=entrylist->next){
     memset(databuf, 0, sizeof(databuf));
     char* cursor = copyAndTrim(databuf, sizeof(entrylist->type), entrylist->type);
