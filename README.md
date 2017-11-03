@@ -16,3 +16,34 @@ Some sample commands:
 ```
    ./smp -z targb -e mod -s lmod -f "ENAME='CELHABND'"
 ```
+
+Usage message:
+
+```
+usage: ./smp 
+  -h    get usage help 
+  -v    verbose 
+  -m    display messages, even if return code is 0 or 4 
+  -H    produce a header line in the output 
+  -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK 
+     default: "SMPE.ZOSV201.GLOBAL.CSI" 
+  -z <zone(s)>  Zone selection: 
+     global - Use the global zone 
+     alltzones - Use all target zones 
+     alldzones - Use all DLIB zones 
+     * - Use all zones 
+     zone[,zone] - Use specific names zone(s) 
+     default: "*" 
+  -e <entry type(s)>  Type(s) of entries to be displayed, such as: 
+     assem, dddef, dlib, element, lmod, mac, sysmod, etc. 
+     * - all entry types 
+     default: "*" 
+     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/entry.htm 
+  -s <subtype(s)>  Subtypes() of entries to be displayed 
+     * - all subtypes types 
+     default: "*" 
+     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/subent.htm 
+  -f <filter>  Filter expression 
+     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/filter.htm 
+     default: "" 
+```
