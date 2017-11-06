@@ -152,7 +152,7 @@ ifeq "${OSTYPE}" "zLinux"
 PROGRAMS := 
 endif
 
-default: ${PROGRAMS}
+default: smp
 
 ifeq "${OSTYPE}" "zOS"
 MVSOBJS := \
