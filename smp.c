@@ -34,11 +34,18 @@ void  printItem(FILE* file, const P_ITEM_LIST item){
 }
 
 static
+const char* currentCSI(){
+  const char* envCSI = getenv("SMPCSI");
+  return (envCSI ? envCSI : defaultCSI);
+}
+
+static
 void usage(int argc, char**argv){
   fprintf(stderr,
           "usage: %s \n"
           "  -h    get usage help \n"
           "  -v    verbose \n"
+          "  -d    debug \n"
           "  -m    display messages, even if return code is 0 or 4 \n"
           "  -H    produce a header line in the output \n"
           "  -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK \n"
@@ -62,14 +69,19 @@ void usage(int argc, char**argv){
           "  -f <filter>  Filter expression \n"
           "     See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/filter.htm \n"
           "     default: \"%s\" \n"
+          "  -q <query>  This is just an alias for -f \n"
+          " \n"
+          " If environment variable SMPCSI is set, it provides the default CSI; \n"
+          " otherwise \"%s\" is used. \n"
           " \n"
           , 
           argv[0],
-          defaultCSI,
+          currentCSI(),
           defaultZone,
           defaultEntry,
           defaultSubEntry,
-          defaultFilter);
+          defaultFilter,
+          defaultCSI);
 }
 
 static
@@ -109,15 +121,16 @@ int main(int argc, char**argv){
   int myoptind = 1;
   char* myoptarg = 0;
   bool verbose = false;
+  bool debug = false;
   bool messages = false;
   bool header = false;
-  char* csi = (char*) defaultCSI;
+  char* csi = (char*) currentCSI();
   char* zone = (char*) defaultZone;
   char* entry = (char*) defaultEntry;
   char* subentry = (char*) defaultSubEntry;
-  char* filter = (char*) defaultFilter;
+  char* filter = 0;
 
-  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:vmhH"))){
+  while (((char) -1) != (opt = (char) getopt(argc, argv, "c:z:e:s:f:q:vmhHd"))){
     myoptind = optind;
     myoptarg = optarg;
 
@@ -140,10 +153,22 @@ int main(int argc, char**argv){
       break;
 
     case 'f':
+    case 'q':
+      if (filter){
+        fprintf(stderr, "filter/query already provided.\n");
+        usage(argc, argv);
+        return 1;
+      }
       filter = myoptarg;
       break;
 
     case 'v':
+      verbose = true;
+      messages = true;
+      break;
+
+    case 'd':
+      debug = true;
       verbose = true;
       messages = true;
       break;
@@ -176,18 +201,24 @@ int main(int argc, char**argv){
       fprintf(stderr, " %s", argv[myoptind++]);
     }
     fprintf(stderr, "\n");
+    usage(argc, argv);
+    return 1;
+  }
+
+  if (0 == filter){
+    filter = (char*) defaultFilter;
   }
 
   APIPGM * gimapi;
   gimapi = (APIPGM *) fetch("GIMAPI");
-  if (verbose){
+  if (debug){
     fprintf(stderr, "GIMAPI at 0x%08x\n", (uint32_t) gimapi);
   }
 
   ITEM_LIST* msgbuff = 0;
   int rc = 0, cc = 0;
   
-  if (verbose){
+  if (debug){
     P_API_VERSION verout;
     (*gimapi) ("VERSION ", 0, &verout, "ENU", &rc, &cc, &msgbuff);
     const char* version_string = (const char*)verout;
@@ -215,6 +246,11 @@ int main(int argc, char**argv){
   parms.filter = filter;
   parms.filterlen = (long) strlen(filter);
   msgbuff = 0;
+
+  if (verbose){
+    fprintf(stderr, "CSI: %s \n",
+            csi);
+  }
 
   (*gimapi) ("QUERY   ", &parmptr, &entrylist, "ENU", &rc, &cc, &msgbuff);
   if (verbose){
