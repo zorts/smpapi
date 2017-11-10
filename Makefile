@@ -2,6 +2,8 @@
 UNAME_KERNEL  := $(shell uname -s)
 UNAME_MACHINE := $(shell uname -m)
 
+INSTALLDIR := /u/tsjlc/bin
+
 # To make everything be rebuilt if the Makefile changes, uncomment
 #ALL_DEPEND := Makefile
 
@@ -169,6 +171,9 @@ sample: sample.o \
  ${MVSOBJS} \
  ${EMPTY}
 	${LINK} -o $@ $^
+
+install: smp
+	cp ./smp ${INSTALLDIR}/smp
 
 clean:
 	rm -f ${PROGRAMS} *.o *~ *.dbg *.lst *.ad $(DEPDIR)/*

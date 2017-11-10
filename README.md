@@ -23,6 +23,7 @@ Usage message:
 usage: ./smp 
   -h    get usage help 
   -v    verbose 
+  -d    debug 
   -m    display messages, even if return code is 0 or 4 
   -H    produce a header line in the output 
   -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK 
@@ -46,4 +47,8 @@ usage: ./smp
   -f <filter>  Filter expression 
      See: https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/filter.htm 
      default: "" 
+  -q <query>  This is just an alias for -f 
+ 
+ If environment variable SMPCSI is set, it provides the default CSI; 
+ otherwise "SMPE.ZOSV201.GLOBAL.CSI" is used. 
 ```
