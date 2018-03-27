@@ -11,7 +11,7 @@
 #include <_Nascii.h> /* for __isASCII() */
 #include "smpapi.h"
 
-static const char defaultCSI[] = "SMPE.ZOSV201.GLOBAL.CSI";
+static const char defaultCSI[] = "SMPE.ZOSV202.GLOBAL.CSI";
 static const char defaultZone[] = "*";
 static const char defaultEntry[] = "*";
 static const char defaultSubEntry[] = "*";
