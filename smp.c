@@ -11,11 +11,23 @@
 #include <_Nascii.h> /* for __isASCII() */
 #include "smpapi.h"
 
-static const char defaultCSI[] = "SMPE.ZOSV202.GLOBAL.CSI";
+static const char defaultCSI[] = "SMPE.ZOSV203.GLOBAL.CSI";
 static const char defaultZone[] = "*";
 static const char defaultEntry[] = "*";
 static const char defaultSubEntry[] = "*";
 static const char defaultFilter[] = "";
+
+typedef struct{
+  const char* abbrev;
+  const char* full;
+} csi_abbrev_t;
+
+static csi_abbrev_t abbreviations[] ={
+  {"2.1", "SMPE.ZOSV201.GLOBAL.CSI"},
+  {"2.2", "SMPE.ZOSV202.GLOBAL.CSI"},
+  {"2.3", "SMPE.ZOSV203.GLOBAL.CSI"},
+  {0,0}
+};
 
 static 
 void printString(FILE* file, const char* item, long itemLength){
@@ -34,9 +46,16 @@ void  printItem(FILE* file, const P_ITEM_LIST item){
 }
 
 static
-const char* currentCSI(){
-  const char* envCSI = getenv("SMPCSI");
-  return (envCSI ? envCSI : defaultCSI);
+const char* currentCSI(const char* candidate){
+  if (!candidate){ return defaultCSI;}
+  const csi_abbrev_t* pair = abbreviations;
+  while (pair){
+    if (0 == strcmp(pair->abbrev, candidate)){
+      return pair->full;
+    }
+    ++pair;
+  }
+  return candidate;
 }
 
 static
@@ -50,6 +69,8 @@ void usage(int argc, char**argv){
           "  -H    produce a header line in the output \n"
           "  -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK \n"
           "     default: \"%s\" \n"
+          "     You can also use an abbreviation of 2.1, 2.2 or 2.3 to get\n"
+          "     the appropriate Rocket default CSI for that release.\n"
           "  -z <zone(s)>  Zone selection: \n"
           "     global - Use the global zone \n"
           "     alltzones - Use all target zones \n"
@@ -76,7 +97,7 @@ void usage(int argc, char**argv){
           " \n"
           , 
           argv[0],
-          currentCSI(),
+          currentCSI(getenv("SMPCSI")),
           defaultZone,
           defaultEntry,
           defaultSubEntry,
@@ -124,7 +145,7 @@ int main(int argc, char**argv){
   bool debug = false;
   bool messages = false;
   bool header = false;
-  char* csi = (char*) currentCSI();
+  char* csi = (char*) currentCSI(getenv("SMPCSI"));
   char* zone = (char*) defaultZone;
   char* entry = (char*) defaultEntry;
   char* subentry = (char*) defaultSubEntry;
@@ -137,7 +158,7 @@ int main(int argc, char**argv){
     switch(opt){
 
     case 'c':
-      csi = myoptarg;
+      csi = (char*) currentCSI(myoptarg);
       break;
 
     case 'z':
