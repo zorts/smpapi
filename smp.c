@@ -49,7 +49,7 @@ static
 const char* currentCSI(const char* candidate){
   if (!candidate){ return defaultCSI;}
   const csi_abbrev_t* pair = abbreviations;
-  while (pair){
+  while (pair->abbrev){
     if (0 == strcmp(pair->abbrev, candidate)){
       return pair->full;
     }
