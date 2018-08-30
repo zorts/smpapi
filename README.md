@@ -1,7 +1,15 @@
 Drive GIMAPI (the SMP query API) from the USS command line. The output is vertical-bar delimited, intended for consumption by scripts.
 
-Some sample commands:
+# Some sample commands
 
+* What are all the target and dlib zones?
+```
+smp -e targetzone,dlibzone -s srel
+```
+* What are all the SYSMODs APPLYed to an FMID?
+```
+smp -z targa -f "fmid='HDL1202'&apply='YES'" -e SYSMOD -s ename
+```
 * To get a summary of an LMOD:
 ```
 ./smp -z targb -e lmod -f  "ENAME='CELHV003'"
@@ -17,17 +25,19 @@ Some sample commands:
    ./smp -z targb -e mod -s lmod -f "ENAME='CELHABND'"
 ```
 
-Usage message:
+# Usage message
 
 ```
-usage: ./smp 
+usage: smp 
   -h    get usage help 
   -v    verbose 
   -d    debug 
   -m    display messages, even if return code is 0 or 4 
   -H    produce a header line in the output 
   -c <CSI>  DSN of CSI to use, fully qualified, no quoting required, lower case OK 
-     default: "SMPE.ZOSV201.GLOBAL.CSI" 
+     default: "SMPE.ZOSV203.GLOBAL.CSI" 
+     You can also use an abbreviation of 2.1, 2.2 or 2.3 to get
+     the appropriate Rocket default CSI for that release.
   -z <zone(s)>  Zone selection: 
      global - Use the global zone 
      alltzones - Use all target zones 
@@ -50,5 +60,5 @@ usage: ./smp
   -q <query>  This is just an alias for -f 
  
  If environment variable SMPCSI is set, it provides the default CSI; 
- otherwise "SMPE.ZOSV201.GLOBAL.CSI" is used. 
+ otherwise "SMPE.ZOSV203.GLOBAL.CSI" is used. 
 ```
