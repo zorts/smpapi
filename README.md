@@ -1,5 +1,12 @@
 Drive GIMAPI (the SMP query API) from the USS command line. The output is vertical-bar delimited, intended for consumption by scripts.
 
+The documentation on this interface is in [SMP/E for z/OS Reference](https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/toc.htm). The most useful parts are:
+
+* [Filter paramter syntax](https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/filter.htm)
+* [Valid entry types](https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/entry.htm)
+* [Valid subentry types](https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/subent.htm)
+* [Example of QUERY command](https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.gim2000/qsamp.htm)
+
 # Some sample commands
 
 * What are all the target and dlib zones?
@@ -9,6 +16,10 @@ smp -e targetzone,dlibzone -s srel
 * What are all the SYSMODs APPLYed to an FMID?
 ```
 smp -z targa -f "fmid='HDL1202'&apply='YES'" -e SYSMOD -s ename
+```
+* In what zones is a SYSMOD APPLYed?
+```
+./smp -e sysmod -s apply -f "ENAME='UI40054'"
 ```
 * To get a summary of an LMOD:
 ```
